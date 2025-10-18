@@ -1,0 +1,85 @@
+<?xml version='1.0' encoding='utf-8'?>
+<PSSGFILE version="1.0.0.0"><PSSGDATABASE><LIBRARY type="SHADERINSTANCE">
+<SHADERINSTANCE shaderGroup="#ui_2d_uv_instanced.fx" parameterCount="4" parameterSavedCount="4" renderSortPriority="0" id="din_cnd_bold_msdf_0">
+<SHADERINPUT parameterID="0" type="constant" format="float4">
+0.000000000e+000 0.000000000e+000 0.000000000e+000 0.000000000e+000 </SHADERINPUT>
+<SHADERINPUT parameterID="1" type="texture" texture="#din_cnd_bold_msdf_0.tga" />
+<SHADERINPUT parameterID="2" type="constant" format="float4">
+1.000000000e+000 1.000000000e+000 1.000000000e+000 1.000000000e+000 </SHADERINPUT>
+<SHADERINPUT parameterID="3" type="constant" format="float">
+1.000000000e+000 </SHADERINPUT>
+</SHADERINSTANCE>
+<SHADERINSTANCE shaderGroup="#ui_2d_uv_instanced.fx" parameterCount="4" parameterSavedCount="4" renderSortPriority="0" id="din_cnd_bold_msdf_1">
+<SHADERINPUT parameterID="0" type="constant" format="float4">
+0.000000000e+000 0.000000000e+000 0.000000000e+000 0.000000000e+000 </SHADERINPUT>
+<SHADERINPUT parameterID="1" type="texture" texture="#din_cnd_bold_msdf_1.tga" />
+<SHADERINPUT parameterID="2" type="constant" format="float4">
+1.000000000e+000 1.000000000e+000 1.000000000e+000 1.000000000e+000 </SHADERINPUT>
+<SHADERINPUT parameterID="3" type="constant" format="float">
+1.000000000e+000 </SHADERINPUT>
+</SHADERINSTANCE>
+<SHADERINSTANCE shaderGroup="#ui_2d_uv_instanced.fx" parameterCount="4" parameterSavedCount="4" renderSortPriority="0" id="din_cnd_bold_msdf_jpn_0">
+<SHADERINPUT parameterID="0" type="constant" format="float4">
+0.000000000e+000 0.000000000e+000 0.000000000e+000 0.000000000e+000 </SHADERINPUT>
+<SHADERINPUT parameterID="1" type="texture" texture="#din_cnd_bold_msdf_jpn_0.tga" />
+<SHADERINPUT parameterID="2" type="constant" format="float4">
+1.000000000e+000 1.000000000e+000 1.000000000e+000 1.000000000e+000 </SHADERINPUT>
+<SHADERINPUT parameterID="3" type="constant" format="float">
+1.000000000e+000 </SHADERINPUT>
+</SHADERINSTANCE>
+<SHADERINSTANCE shaderGroup="#ui_2d_uv_instanced.fx" parameterCount="4" parameterSavedCount="4" renderSortPriority="0" id="din_cnd_bold_msdf_jpn_1">
+<SHADERINPUT parameterID="0" type="constant" format="float4">
+0.000000000e+000 0.000000000e+000 0.000000000e+000 0.000000000e+000 </SHADERINPUT>
+<SHADERINPUT parameterID="1" type="texture" texture="#din_cnd_bold_msdf_jpn_1.tga" />
+<SHADERINPUT parameterID="2" type="constant" format="float4">
+1.000000000e+000 1.000000000e+000 1.000000000e+000 1.000000000e+000 </SHADERINPUT>
+<SHADERINPUT parameterID="3" type="constant" format="float">
+1.000000000e+000 </SHADERINPUT>
+</SHADERINSTANCE>
+<SHADERINSTANCE shaderGroup="#ui_2d_uv_instanced.fx" parameterCount="4" parameterSavedCount="4" renderSortPriority="0" id="din_cnd_bold_msdf_jpn_2">
+<SHADERINPUT parameterID="0" type="constant" format="float4">
+0.000000000e+000 0.000000000e+000 0.000000000e+000 0.000000000e+000 </SHADERINPUT>
+<SHADERINPUT parameterID="1" type="texture" texture="#din_cnd_bold_msdf_jpn_2.tga" />
+<SHADERINPUT parameterID="2" type="constant" format="float4">
+1.000000000e+000 1.000000000e+000 1.000000000e+000 1.000000000e+000 </SHADERINPUT>
+<SHADERINPUT parameterID="3" type="constant" format="float">
+1.000000000e+000 </SHADERINPUT>
+</SHADERINSTANCE>
+<SHADERINSTANCE shaderGroup="#ui_2d_uv_instanced.fx" parameterCount="4" parameterSavedCount="4" renderSortPriority="0" id="din_cnd_bold_msdf_jpn_3">
+<SHADERINPUT parameterID="0" type="constant" format="float4">
+0.000000000e+000 0.000000000e+000 0.000000000e+000 0.000000000e+000 </SHADERINPUT>
+<SHADERINPUT parameterID="1" type="texture" texture="#din_cnd_bold_msdf_jpn_3.tga" />
+<SHADERINPUT parameterID="2" type="constant" format="float4">
+1.000000000e+000 1.000000000e+000 1.000000000e+000 1.000000000e+000 </SHADERINPUT>
+<SHADERINPUT parameterID="3" type="constant" format="float">
+1.000000000e+000 </SHADERINPUT>
+</SHADERINSTANCE>
+<SHADERINSTANCE shaderGroup="#ui_2d_uv_instanced.fx" parameterCount="4" parameterSavedCount="4" renderSortPriority="0" id="din_cnd_bold_msdf_jpn_4">
+<SHADERINPUT parameterID="0" type="constant" format="float4">
+0.000000000e+000 0.000000000e+000 0.000000000e+000 0.000000000e+000 </SHADERINPUT>
+<SHADERINPUT parameterID="1" type="texture" texture="#din_cnd_bold_msdf_jpn_4.tga" />
+<SHADERINPUT parameterID="2" type="constant" format="float4">
+1.000000000e+000 1.000000000e+000 1.000000000e+000 1.000000000e+000 </SHADERINPUT>
+<SHADERINPUT parameterID="3" type="constant" format="float">
+1.000000000e+000 </SHADERINPUT>
+</SHADERINSTANCE>
+<SHADERINSTANCE shaderGroup="#ui_2d_uv_instanced.fx" parameterCount="4" parameterSavedCount="4" renderSortPriority="0" id="din_cnd_bold_msdf_jpn_5">
+<SHADERINPUT parameterID="0" type="constant" format="float4">
+0.000000000e+000 0.000000000e+000 0.000000000e+000 0.000000000e+000 </SHADERINPUT>
+<SHADERINPUT parameterID="1" type="texture" texture="#din_cnd_bold_msdf_jpn_5.tga" />
+<SHADERINPUT parameterID="2" type="constant" format="float4">
+1.000000000e+000 1.000000000e+000 1.000000000e+000 1.000000000e+000 </SHADERINPUT>
+<SHADERINPUT parameterID="3" type="constant" format="float">
+1.000000000e+000 </SHADERINPUT>
+</SHADERINSTANCE>
+<SHADERINSTANCE shaderGroup="#ui_2d_uv_instanced.fx" parameterCount="4" parameterSavedCount="4" renderSortPriority="0" id="din_cnd_bold_msdf_jpn_6">
+<SHADERINPUT parameterID="0" type="constant" format="float4">
+0.000000000e+000 0.000000000e+000 0.000000000e+000 0.000000000e+000 </SHADERINPUT>
+<SHADERINPUT parameterID="1" type="texture" texture="#din_cnd_bold_msdf_jpn_6.tga" />
+<SHADERINPUT parameterID="2" type="constant" format="float4">
+1.000000000e+000 1.000000000e+000 1.000000000e+000 1.000000000e+000 </SHADERINPUT>
+<SHADERINPUT parameterID="3" type="constant" format="float">
+1.000000000e+000 </SHADERINPUT>
+</SHADERINSTANCE>
+</LIBRARY>
+</PSSGDATABASE></PSSGFILE>

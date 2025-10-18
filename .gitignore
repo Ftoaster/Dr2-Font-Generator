@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# PyInstaller build artifacts (임시 빌드 파일만 제외)
+build/
+dist/
+
+# Virtual Environment
+venv/
+ENV/
+env/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Windows
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# User generated config (사용자 설정만 제외)
+user_config.json
+pipeline_config.json
+
+# Duplicate documentation
+EXE_BUILD_GUIDE.md
+
+# Temporary files
+*.tmp
+*.log
+*.bak

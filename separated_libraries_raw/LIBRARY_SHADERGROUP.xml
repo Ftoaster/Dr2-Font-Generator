@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='utf-8'?>
+<PSSGFILE version="1.0.0.0"><PSSGDATABASE><LIBRARY type="SHADERGROUP">
+<SHADERGROUP parameterCount="4" parameterSavedCount="0" parameterStreamCount="0" instancesRequireSorting="0" defaultRenderSortPriority="-2147483648" passCount="0" id="ui_2d_uv_instanced.fx">
+<SHADERINPUTDEFINITION name="Phong" type="constant" format="float4" />
+<SHADERINPUTDEFINITION name="TDistanceMap" type="texture" />
+<SHADERINPUTDEFINITION name="DiffuseColour" type="constant" format="float4" />
+<SHADERINPUTDEFINITION name="Alpha" type="constant" format="float" />
+</SHADERGROUP>
+</LIBRARY>
+</PSSGDATABASE></PSSGFILE>
