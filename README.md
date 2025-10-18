@@ -1,6 +1,6 @@
 # Dr2 Font Generator
 
-> A complete font conversion tool for DiRT Rally 2.0 - Convert TrueType/OpenType fonts to MTSDF format with PSSG XML libraries
+> A complete font conversion tool for DiRT Rally 2.0 - Convert TrueType/OpenType fonts to MTSDF format with XML libraries
 
 ## Table of Contents
 
@@ -24,7 +24,7 @@
 
 - **One-Click Conversion**: Complete font pipeline automation
 - **MTSDF Atlas Generation**: High-quality multi-channel signed distance field rendering
-- **PSSG XML Export**: Automatic generation of all required library files
+- **XML Library Export**: Automatic generation of all required library files
 - **DDS Conversion**: Automatic texture compression for game compatibility
 - **Font Viewer**: Built-in coordinate comparison and inspection tool
 - **Custom Character Sets**: Support for any Unicode characters including CJK
@@ -73,7 +73,7 @@ build.bat
 ```mermaid
 graph LR
     A[Font File] --> B[MTSDF Generation]
-    B --> C[JSON to PSSG]
+    B --> C[JSON to XML]
     C --> D[Library Merge]
     D --> E[DDS Conversion]
     E --> F[Output Files]
@@ -92,9 +92,9 @@ graph LR
 
 | Setting | Description | Recommended | Range |
 |---------|-------------|-------------|-------|
-| **Font Size** | Output resolution in pixels | `74` | 40-120 |
+| **Font Size** | Output resolution in pixels | `42` | 40-120 |
 | **Distance Field Pixel Range** | SDF sampling range | `4` | 2-8 |
-| **Output Filename** | Base name for output files | `din_cnd_bold_msdf_0` | - |
+| **Output Filename** | Base name for output files | - | - |
 
 **Presets Available:**
 - `din_cnd_bold_ita_msdf_0` - DIN Condensed Bold Italic
@@ -117,7 +117,6 @@ To include special characters, use escape sequences:
 |-----------|----------------|---------|
 | Double quote (`"`) | `\"` | `"Hello \"World\""` |
 | Backslash (`\`) | `\\` | `"Path\\to\\file"` |
-| Newline | `\n` | `"Line1\nLine2"` |
 
 #### Example Charset Files
 
@@ -152,7 +151,6 @@ The built-in Font Viewer allows you to inspect and compare font coordinates betw
    - Single character: `A`
    - Multiple characters: `ABC`
    - Comma-separated: `A,B,C`
-   - Unicode codepoints: `65,66,67`
 3. View comparison results:
    - Position coordinates (X, Y, Z)
    - UV texture coordinates
@@ -181,7 +179,7 @@ After successful generation, the following files will be created in `witchs_gift
 | `font-atlas.json` | Font metadata and glyph information |
 | `[filename].png` | MTSDF atlas texture (PNG format) |
 | `[filename].dds` | DDS texture ready for game import |
-| `node.xml` | Merged PSSG node library |
+| `node.xml` | Merged XML node library |
 
 ### Library Files (`generated_library/`)
 
@@ -194,32 +192,6 @@ After successful generation, the following files will be created in `witchs_gift
 | `LIBRARY_SEGMENTSET.xml` | Data segments |
 | `LIBRARY_SHADERGROUP.xml` | Shader group definitions |
 | `LIBRARY_SHADERINSTANCE.xml` | Shader instances |
-
----
-
-## Tips & Best Practices
-
-### Quality Settings
-
-| Use Case | Font Size | Pixel Range | Notes |
-|----------|-----------|-------------|-------|
-| Standard UI | 74 | 4 | Balanced quality/size |
-| High-res displays | 100-120 | 5-6 | Better quality, larger files |
-| Small text | 60-70 | 3-4 | Faster generation |
-| Large text/titles | 90+ | 5-6 | Maximum quality |
-
-### Performance
-
-- **Fewer characters** = faster generation
-- Use `basic` charset for ASCII-only fonts
-- Custom charset files reduce unnecessary glyphs
-- Font size directly affects atlas texture size
-
-### Compatibility
-
-- Use **UTF-8 encoding** for all charset files
-- Test output with Font Viewer before importing to game
-- Keep consistent naming conventions for easy management
 
 ---
 
@@ -326,16 +298,61 @@ Dr2-Font-Generator/
 
 ---
 
+## How to Apply to Game
+
+After generating font files, you need to import them into the game using these tools:
+
+### Step 1: Extract Game Files
+
+1. Download and use **[NeFS Editor](https://github.com/EgoEngineModding/ego.nefsedit)** to open `game.nefs`
+2. Extract the following files:
+   - **Fonts:**
+     - `frontend/fonts/roboto_cnd_reg.pssg`
+     - `frontend/fonts/din_cnd_bold.pssg`
+     - `frontend/fonts/din_cnd_bold_ita.pssg`
+   - **Font Textures:**
+     - `frontend/bundles/b_fonts_def.pssg`
+
+### Step 2: Import Generated Files
+
+1. Download **[Ego PSSG Editor](https://p2t5r.itch.io/ego-pssg-editor)**
+2. **Import Font Node:**
+   - Open your font file (e.g., `din_cnd_bold.pssg`)
+   - Go to "All Nodes" tab
+   - Click on "PSSGDATABASE"
+   - Click "Node-Import" button
+   - Select the generated `node.xml` from `witchs_gift/`
+   - Save the file
+3. **Import Font Texture:**
+   - Open the font texture file (`b_fonts_def.pssg`)
+   - Go to "Textures" tab
+   - Select the texture matching your generated DDS name
+   - Click "Import" button
+   - Select the generated `.dds` file from `witchs_gift/`
+   - Repeat for each texture position if needed
+   - Save the file
+
+### Step 3: Repack into Game
+
+1. Use NeFS Editor to replace the modified PSSG files back into `game.nefs`
+2. Done! Your custom font is now in the game
+
+---
+
 ## Credits
 
 ### External Tools
 
 - **[msdf-atlas-gen](https://github.com/Chlumsky/msdf-atlas-gen)** by Viktor Chlumský - Multi-channel signed distance field atlas generator
 - **[texconv](https://github.com/Microsoft/DirectXTex)** by Microsoft - DirectX texture converter
+- **[NeFS Editor](https://github.com/EgoEngineModding/ego.nefsedit)** by EgoEngineModding - Archive editor for Ego Engine
+- **[Ego PSSG Editor](https://p2t5r.itch.io/ego-pssg-editor)** by Petar - PSSG file editor for Ego Engine games
 
 ### Development
 
 Created for the DiRT Rally 2.0 modding community
+
+XML conversion code adapted from [EgoEngineModding](https://github.com/EgoEngineModding) libraries
 
 ---
 

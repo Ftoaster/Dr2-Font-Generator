@@ -3,7 +3,7 @@ MTSDF Font Pipeline Manager - GUI Tool
 
 Manages all font conversion pipeline in one GUI:
 1. MTSDF Atlas Generation
-2. JSON → PSSG XML Conversion
+2. JSON → XML Conversion
 3. XML Library Merging
 4. Texture PNG → DDS Conversion
 5. Coordinate Verification Tool
@@ -21,12 +21,12 @@ from datetime import datetime
 
 # Import local modules
 try:
-    from json_to_pssg import PSSGGenerator
+    from json_to_xml import XMLGenerator
     from l_merge_libraries import merge_xml_libraries_ordered
     import coordinate_comparator
 except ImportError as e:
     print(f"Module import failed: {e}")
-    PSSGGenerator = None
+    XMLGenerator = None
     merge_xml_libraries_ordered = None
     coordinate_comparator = None
 
@@ -358,9 +358,9 @@ class FontPipelineManager:
                 self.log_message("[Error] Pipeline aborted: MTSDF generation failed")
                 return
             
-            # Step 2: JSON → PSSG XML conversion
-            self.update_progress(2, total_steps, "Converting JSON to PSSG XML...")
-            if not self.step2_json_to_pssg():
+            # Step 2: JSON → XML conversion
+            self.update_progress(2, total_steps, "Converting JSON to XML...")
+            if not self.step2_json_to_xml():
                 self.log_message("[Error] Pipeline aborted: JSON conversion failed")
                 return
             
@@ -443,9 +443,9 @@ class FontPipelineManager:
             self.log_message(f"[Error] MTSDF generation error: {e}")
             return False
     
-    def step2_json_to_pssg(self):
-        """Step 2: JSON → PSSG XML conversion"""
-        self.log_message("[2/4] Converting JSON to PSSG XML...")
+    def step2_json_to_xml(self):
+        """Step 2: JSON → XML conversion"""
+        self.log_message("[2/4] Converting JSON to XML...")
         
         try:
             generated_library_dir = self.output_dir / 'generated_library'
@@ -459,18 +459,18 @@ class FontPipelineManager:
                 self.log_message(f"[Error] JSON file not found: {json_path}")
                 return False
             
-            # Direct call to json_to_pssg
-            if PSSGGenerator is None:
-                self.log_message("[Error] Cannot load json_to_pssg module")
+            # Direct call to json_to_xml
+            if XMLGenerator is None:
+                self.log_message("[Error] Cannot load json_to_xml module")
                 return False
             
             try:
-                generator = PSSGGenerator(str(json_path), texture_name, font_name)
+                generator = XMLGenerator(str(json_path), texture_name, font_name)
                 generator.generate_libraries(str(generated_library_dir))
-                self.log_message("JSON to PSSG XML conversion complete")
+                self.log_message("JSON to XML conversion complete")
                 return True
             except Exception as e:
-                self.log_message(f"[Error] JSON to PSSG XML conversion failed: {e}")
+                self.log_message(f"[Error] JSON to XML conversion failed: {e}")
                 return False
                 
         except Exception as e:

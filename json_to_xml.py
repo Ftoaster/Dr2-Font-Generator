@@ -1,8 +1,8 @@
 """
-MSDF Atlas JSON을 PSSG XML 파일들로 변환하는 도구
+MSDF Atlas JSON to XML Library Converter
 
-사용법:
-    python json_to_pssg.py input.json output_dir --texture texture.png --font-name my_font
+Usage:
+    python json_to_xml.py input.json output_dir --texture texture.png --font-name my_font
 """
 
 import json
@@ -11,7 +11,7 @@ import os
 import argparse
 import xml.etree.ElementTree as ET
 
-class PSSGGenerator:
+class XMLGenerator:
     def __init__(self, json_path, texture_name, font_name):
         """
         Args:
@@ -601,11 +601,11 @@ class PSSGGenerator:
 
 def main():
     parser = argparse.ArgumentParser(
-        description='MSDF Atlas JSON을 PSSG XML 파일들로 변환',
+        description='Convert MSDF Atlas JSON to XML Libraries',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
-예시:
-  python json_to_pssg.py font.json output_libs --texture my_font_0.tga --font-name my_font_msdf_0
+Example:
+  python json_to_xml.py font.json output_libs --texture my_font_0.tga --font-name my_font_msdf_0
   
 생성되는 파일:
   output_libs/LIBRARY_RENDERINTERFACEBOUND.xml
@@ -624,7 +624,7 @@ def main():
     args = parser.parse_args()
     
     # Generator 생성
-    generator = PSSGGenerator(args.json, args.texture, args.font_name)
+    generator = XMLGenerator(args.json, args.texture, args.font_name)
     
     if args.summary:
         # 요약만 출력
