@@ -85,6 +85,7 @@ class FontPipelineManager:
             'charset_file': '',
             'font_size': '74',
             'pxrange': '4',
+            'padding': '0',
             'font_name': 'din_cnd_bold_msdf_0',
         }
         
@@ -144,8 +145,13 @@ class FontPipelineManager:
         self.pxrange_var = tk.StringVar(value=self.config['pxrange'])
         ttk.Entry(mtsdf_frame, textvariable=self.pxrange_var, width=20).grid(row=1, column=1, sticky='w', padx=5, pady=5)
         
+        # Padding
+        ttk.Label(mtsdf_frame, text="Glyph Padding (pixels):").grid(row=2, column=0, sticky='w', padx=5, pady=5)
+        self.padding_var = tk.StringVar(value=self.config.get('padding', '0'))
+        ttk.Entry(mtsdf_frame, textvariable=self.padding_var, width=20).grid(row=2, column=1, sticky='w', padx=5, pady=5)
+        
         # Output filename
-        ttk.Label(mtsdf_frame, text="Output Filename:").grid(row=2, column=0, sticky='w', padx=5, pady=5)
+        ttk.Label(mtsdf_frame, text="Output Filename:").grid(row=3, column=0, sticky='w', padx=5, pady=5)
         self.font_name_var = tk.StringVar(value=self.config['font_name'])
         self.font_name_combo = ttk.Combobox(mtsdf_frame, textvariable=self.font_name_var, width=38)
         self.font_name_combo['values'] = [
@@ -153,7 +159,7 @@ class FontPipelineManager:
             'din_cnd_bold_msdf_0',
             'roboto_cnd_reg_msdf_0'
         ]
-        self.font_name_combo.grid(row=2, column=1, sticky='w', padx=5, pady=5)
+        self.font_name_combo.grid(row=3, column=1, sticky='w', padx=5, pady=5)
         
         # === 3. Action Buttons ===
         button_frame = ttk.Frame(parent)
@@ -266,6 +272,7 @@ class FontPipelineManager:
             'charset_file': self.charset_var.get(),
             'font_size': self.font_size_var.get(),
             'pxrange': self.pxrange_var.get(),
+            'padding': self.padding_var.get(),
             'font_name': self.font_name_var.get(),
         }
         
@@ -296,6 +303,7 @@ class FontPipelineManager:
             self.charset_var.set(config.get('charset_file', ''))
             self.font_size_var.set(config.get('font_size', '74'))
             self.pxrange_var.set(config.get('pxrange', '4'))
+            self.padding_var.set(config.get('padding', '0'))
             self.font_name_var.set(config.get('font_name', 'din_cnd_bold_msdf_0'))
         except Exception as e:
             pass  # Silently ignore
@@ -407,6 +415,11 @@ class FontPipelineManager:
                 '-yorigin', 'bottom',  # Always apply
             ]
             
+            # Add padding if specified
+            padding = self.padding_var.get()
+            if padding and padding != '0':
+                cmd.extend(['-pxpadding', padding])
+            
             texture_name = self.font_name_var.get()
             cmd.extend([
                 '-imageout', str(self.output_dir / f'{texture_name}.png'),
@@ -488,15 +501,32 @@ class FontPipelineManager:
                 return False
             
             input_dir = self.output_dir / 'generated_library'
-            template_path = self.work_dir / 'separated_libraries_raw' / 'LIBRARY_NODE.xml'
+            # Use resource_path for bundled template file
+            template_path = resource_path('separated_libraries_raw/LIBRARY_NODE.xml')
             output_path = self.output_dir / 'node.xml'
             
+            if not os.path.exists(template_path):
+                self.log_message(f"[Error] Template file not found: {template_path}")
+                return False
+            
+            if not input_dir.exists():
+                self.log_message(f"[Error] Generated library folder not found: {input_dir}")
+                return False
+            
             merge_xml_libraries_ordered(str(input_dir), str(template_path), str(output_path))
-            self.log_message("XML library merge complete")
-            return True
+            
+            # Verify output file was created
+            if output_path.exists():
+                self.log_message("XML library merge complete")
+                return True
+            else:
+                self.log_message("[Error] node.xml was not created")
+                return False
                 
         except Exception as e:
             self.log_message(f"[Error] XML merge error: {e}")
+            import traceback
+            self.log_message(traceback.format_exc())
             return False
     
     def step4_convert_to_dds(self):

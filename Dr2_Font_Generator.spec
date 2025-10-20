@@ -16,7 +16,7 @@ a = Analysis(
     datas=[
         ('original_texture', 'original_texture'),
         ('separated_libraries_raw', 'separated_libraries_raw'),
-        ('json_to_pssg.py', '.'),
+        ('json_to_xml.py', '.'),
         ('l_merge_libraries.py', '.'),
         ('coordinate_comparator.py', '.'),
         ('icon.ico', '.'),  # 창 아이콘용

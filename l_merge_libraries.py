@@ -52,24 +52,30 @@ def merge_xml_libraries_ordered(input_dir, template_path, output_path):
     print(f"순서 기준 파일: {template_path}")
 
     try:
-        # 1. 순서의 기준이 될 원본 XML 파일에서 라이브러리 순서 추출
+        # 1. 순서의 기준이 될 원본 XML 파일에서 XML 구조 가져오기
         order_tree = ET.parse(template_path)
         order_root = order_tree.getroot()
         order_db = order_root.find('PSSGDATABASE')
         
-        library_order = [lib.get('type') for lib in order_root.findall('.//LIBRARY')]
-        if not library_order:
-            print(f"[오류] '{template_path}' 파일에서 라이브러리 순서를 찾을 수 없습니다.")
-            return
+        # 2. 고정된 라이브러리 순서 (D:\msdf-atlas-gen\node.xml 원본 기준)
+        library_order = [
+            'NEFONTMETRICS',
+            'NEGLYPHMETRICS',
+            'SHADERINSTANCE',
+            'SHADERGROUP',
+            'SEGMENTSET',
+            'RENDERINTERFACEBOUND',
+            'NODE'
+        ]
 
         print(f"라이브러리 순서 확인: {library_order}")
         print("-" * 30)
         
-        # 2. 합쳐질 기본 XML 구조 생성 (원본 속성을 그대로 복사)
+        # 3. 합쳐질 기본 XML 구조 생성 (원본 속성을 그대로 복사)
         root = ET.Element(order_root.tag, order_root.attrib)
         database = ET.SubElement(root, order_db.tag, order_db.attrib if order_db is not None else {})
 
-        # 3. 추출된 순서에 따라 각 파일을 찾아 병합
+        # 4. 고정된 순서에 따라 각 파일을 찾아 병합
         print("병합을 시작합니다...")
         for lib_type in library_order:
             filename = f"LIBRARY_{lib_type}.xml"
@@ -89,7 +95,7 @@ def merge_xml_libraries_ordered(input_dir, template_path, output_path):
             else:
                 print(f"[경고] '{filename}' 파일을 찾을 수 없어 병합에서 제외합니다.")
 
-        # 4. 최종적으로 합쳐진 XML 파일 저장
+        # 5. 최종적으로 합쳐진 XML 파일 저장
         final_tree = ET.ElementTree(root)
         
         # 들여쓰기 추가 (줄바꿈만, 들여쓰기 공백은 없음)
