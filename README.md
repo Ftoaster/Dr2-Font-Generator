@@ -28,7 +28,8 @@
 - **DDS Conversion**: Automatic texture compression for game compatibility
 - **Font Viewer**: Built-in coordinate comparison and inspection tool
 - **Custom Character Sets**: Support for any Unicode characters including CJK
-- **User-Friendly GUI**: Simple interface with preset configurations
+- **Modern Dark UI**: CustomTkinter-based dark mode interface
+- **Glyph Adjustments**: Per-character horizontal scale, spacing ratio, and UV inset controls
 
 ---
 
@@ -54,11 +55,11 @@
 
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/Dr2-Font-Generator.git
+git clone https://github.com/Ftoaster/Dr2-Font-Generator.git
 cd Dr2-Font-Generator
 
 # Install dependencies
-pip install -r requirements.txt
+pip install Pillow customtkinter darkdetect
 
 # Run build script
 build.bat
@@ -95,11 +96,31 @@ graph LR
 | **Font Size** | Output resolution in pixels | `42` | 40-120 |
 | **Distance Field Pixel Range** | SDF sampling range | `4` | 2-8 |
 | **Output Filename** | Base name for output files | - | - |
+| **UV Inset (px)** | Shrinks UV coords inward to prevent texture bleeding | `0.0` | 0.0-2.0 |
 
 **Presets Available:**
 - `din_cnd_bold_ita_msdf_0` - DIN Condensed Bold Italic
 - `din_cnd_bold_msdf_0` - DIN Condensed Bold
 - `roboto_cnd_reg_msdf_0` - Roboto Condensed Regular
+
+#### Glyph Adjustments
+
+| Setting | Description | Default |
+|---------|-------------|---------|
+| **H-Scale** | Horizontally compress glyph shapes. Format: `all:0.8` or `48-57:0.9,65-90:0.85` | `all:1.0` |
+| **Spacing Ratio** | Reduce advance width (character spacing). Format: same as H-Scale | `all:1.0` |
+| **Symmetric Trim** | When enabled, trims spacing equally from both left and right sides | Off |
+
+**H-Scale / Spacing Ratio Format:**
+
+```
+all:0.85                      # Apply 0.85x to all characters
+48-57:0.9                     # Apply 0.9x to Unicode 48–57 (digits 0–9)
+65-90:0.8,97-122:0.8          # Apply 0.8x to A–Z and a–z
+48-57:1.0,all:0.85            # Keep digits at 1.0, others at 0.85
+```
+
+> **Tip:** H-Scale compresses the visual shape; Spacing Ratio adjusts the advance width (gap between characters). Use both together for condensed text.
 
 ### Charset File Format
 
@@ -235,6 +256,17 @@ After successful generation, the following files will be created in `witchs_gift
 2. Increase distance field pixel range to 5-6
 3. Check source font quality
 4. Reduce number of characters to allow larger atlas
+
+</details>
+
+<details>
+<summary><strong>Thin lines / color bleeding between characters</strong></summary>
+
+**Symptom:** Adjacent characters bleed into each other on the atlas texture
+
+**Solution:**
+1. Set **UV Inset** to `0.3`–`1.0` px in MTSDF Settings
+2. This shrinks each glyph's UV coordinates inward, preventing the GPU sampler from reading neighboring atlas regions
 
 </details>
 
