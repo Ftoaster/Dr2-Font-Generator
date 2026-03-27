@@ -12,16 +12,30 @@ import argparse
 import xml.etree.ElementTree as ET
 
 class XMLGenerator:
-    def __init__(self, json_path, texture_name, font_name):
+    def __init__(self, json_path, texture_name, font_name, h_scale=1.0,
+                 h_scale_chars=None, spacing_chars=None, spacing_ratio=1.0,
+                 spacing_symmetric=False, uv_inset=0.0):
         """
         Args:
             json_path: msdf-atlas-gen이 생성한 JSON 파일 경로
             texture_name: 텍스처 파일명 (예: "my_font_msdf_0.tga")
             font_name: 폰트 이름 (예: "my_font_msdf")
+            h_scale: 수평 압축 비율 (1.0=원본, 0.8=80% 폭으로 압축)
+            h_scale_chars: h_scale 적용 대상 유니코드 코드포인트 집합 (None=전체 적용)
+            spacing_chars: advanceWidth 조정 대상 유니코드 코드포인트 집합 (None=전체 적용)
+            spacing_ratio: advanceWidth 비율 (1.0=원본, 0.6=40% 감소)
+            spacing_symmetric: True이면 줄어든 여백을 좌우 균등 분배, False이면 오른쪽만
+            uv_inset: UV 좌표를 atlas 경계에서 안쪽으로 당기는 픽셀 수 (0.5 권장)
         """
         self.json_path = json_path
         self.texture_name = texture_name
         self.font_name = font_name
+        self.h_scale = max(0.1, min(2.0, float(h_scale)))
+        self.h_scale_chars = h_scale_chars  # set of int, or None (전체)
+        self.spacing_chars = spacing_chars  # set of int, or None (전체)
+        self.spacing_ratio = max(0.1, min(2.0, float(spacing_ratio)))
+        self.spacing_symmetric = bool(spacing_symmetric)
+        self.uv_inset = max(0.0, float(uv_inset))
         
         print(f"JSON 파일 로딩: {json_path}")
         with open(json_path, 'r', encoding='utf-8') as f:
@@ -44,6 +58,29 @@ class XMLGenerator:
         self.datablock_counter = 0
         self.segment_counter = 0
     
+    def _get_h_scale(self, unicode_val):
+        """글자별 유효 h_scale 반환 (h_scale_chars에 없으면 1.0)"""
+        if self.h_scale_chars is None or unicode_val in self.h_scale_chars:
+            return self.h_scale
+        return 1.0
+
+    def _get_spacing_offset(self, glyph):
+        """균등 트리밍 시 글자를 왼쪽으로 이동할 em 단위 offset 반환.
+        symmetric=False이면 0 반환 (오른쪽만 자름).
+        offset = advance * hs * (1 - sr) / 2
+        """
+        if not self.spacing_symmetric:
+            return 0.0
+        unicode_val = glyph['unicode']
+        sr = self.spacing_ratio if (
+            self.spacing_chars is None or unicode_val in self.spacing_chars
+        ) else 1.0
+        if sr >= 1.0:
+            return 0.0
+        hs = self._get_h_scale(unicode_val)
+        advance = glyph.get('advance', 0.0)
+        return advance * hs * (1.0 - sr) / 2.0
+
     def _generate_id(self, prefix=""):
         """고유 ID 생성"""
         # PSSG 스타일 ID 생성 (예: !xC, !yC, !zC ...)
@@ -78,18 +115,22 @@ class XMLGenerator:
             # 아틀라스 좌표를 UV 좌표로 변환 (0.0 ~ 1.0)
             # DirectX 스타일: V=0이 이미지 상단, V=1이 이미지 하단
             # -yorigin bottom이므로 V 좌표 반전 필요
-            left = atlas_bounds['left'] / self.atlas_width
-            right = atlas_bounds['right'] / self.atlas_width
-            top = 1.0 - (atlas_bounds['bottom'] / self.atlas_height)
-            bottom = 1.0 - (atlas_bounds['top'] / self.atlas_height)
+            # uv_inset: 인접 글리프 bleeding 방지를 위해 경계에서 안쪽으로 당김
+            ins = self.uv_inset
+            left   = (atlas_bounds['left']   + ins) / self.atlas_width
+            right  = (atlas_bounds['right']  - ins) / self.atlas_width
+            top    = 1.0 - ((atlas_bounds['bottom'] + ins) / self.atlas_height)
+            bottom = 1.0 - ((atlas_bounds['top']    - ins) / self.atlas_height)
             
             # planeBounds를 원본 게임 방식으로 변환 (글자 상단=Y0)
             # planeBounds는 베이스라인 기준이므로, top만큼 아래로 이동
             # planeBounds['top'] = 베이스라인에서 상단까지의 거리 (= verticalBearing)
             vertical_bearing = plane_bounds['top']
-            
-            p_left = plane_bounds['left']
-            p_right = plane_bounds['right']
+            hs = self._get_h_scale(glyph['unicode'])
+            sp_offset = self._get_spacing_offset(glyph)
+
+            p_left = plane_bounds['left'] * hs - sp_offset
+            p_right = plane_bounds['right'] * hs - sp_offset
             p_top = plane_bounds['top'] - vertical_bearing  # = 0
             p_bottom = plane_bounds['bottom'] - vertical_bearing
             
@@ -210,7 +251,9 @@ class XMLGenerator:
         bbox = ET.SubElement(rendernode, 'BOUNDINGBOX')
         if 'planeBounds' in glyph:
             pb = glyph['planeBounds']
-            bbox.text = f'\n{pb["left"]:.9e} {pb["bottom"]:.9e} -0.000000000e+000 {pb["right"]:.9e} {pb["top"]:.9e} -0.000000000e+000 '
+            hs = self._get_h_scale(unicode)
+            sp_offset = self._get_spacing_offset(glyph)
+            bbox.text = f'\n{pb["left"] * hs - sp_offset:.9e} {pb["bottom"]:.9e} -0.000000000e+000 {pb["right"] * hs - sp_offset:.9e} {pb["top"]:.9e} -0.000000000e+000 '
         else:
             # 원본과 동일하게 크기 0으로 설정
             bbox.text = '\n0.000000000e+000 0.000000000e+000 -0.000000000e+000 0.000000000e+000 0.000000000e+000 -0.000000000e+000 '
@@ -324,7 +367,13 @@ class XMLGenerator:
         scale = 1000
         
         # 최대 advance width 계산 (모든 글리프 포함)
-        max_advance = max(glyph.get('advance', 0) for glyph in all_glyphs_with_metrics) if all_glyphs_with_metrics else 1.0
+        def _eff_advance(g):
+            u = g['unicode']
+            hs = self._get_h_scale(u)
+            sr = self.spacing_ratio if (self.spacing_chars is None or u in self.spacing_chars) else 1.0
+            return g.get('advance', 0) * hs * sr
+
+        max_advance = max((_eff_advance(g) for g in all_glyphs_with_metrics), default=1.0)
         max_advance_scaled = int(max_advance * scale)
         
         fontmetrics = ET.Element('NEFONTMETRICS')
@@ -495,11 +544,16 @@ class XMLGenerator:
         advance = glyph.get('advance', 1.0)
         scale = 1000.0
         
+        # 이 글자에 적용할 spacing_ratio 결정
+        sr = self.spacing_ratio if (
+            self.spacing_chars is None or unicode in self.spacing_chars
+        ) else 1.0
+
         # planeBounds가 없는 경우 (공백, 제어 문자 등)
         if 'planeBounds' not in glyph:
-            # 메트릭은 생성하되, 크기는 0으로 설정
             metrics = ET.Element('NEGLYPHMETRICS')
-            metrics.set('advanceWidth', str(int(advance * scale)))
+            hs = self._get_h_scale(unicode)
+            metrics.set('advanceWidth', str(int(advance * scale * hs * sr)))
             metrics.set('horizontalBearing', '0')
             metrics.set('verticalBearing', '0')
             metrics.set('physicalWidth', '0')
@@ -511,11 +565,12 @@ class XMLGenerator:
         # planeBounds가 있는 경우
         pb = glyph['planeBounds']
         
-        # 좌표를 1000 스케일로 변환 (PSSG 표준)
-        advance_width = int(advance * scale)
-        physical_width = int((pb['right'] - pb['left']) * scale)
+        hs = self._get_h_scale(unicode)
+        sp_offset = self._get_spacing_offset(glyph)
+        advance_width = int(advance * scale * hs * sr)
+        physical_width = int((pb['right'] - pb['left']) * scale * hs)
         physical_height = int((pb['top'] - pb['bottom']) * scale)
-        horizontal_bearing = int(pb['left'] * scale)
+        horizontal_bearing = int((pb['left'] * hs - sp_offset) * scale)
         # verticalBearing: 베이스라인에서 글자 상단까지의 거리
         vertical_bearing = int(pb['top'] * scale)
         

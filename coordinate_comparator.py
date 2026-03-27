@@ -2,7 +2,8 @@
 Font Coordinate Viewer - Original vs New File Visualization Tool
 """
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import messagebox
+import customtkinter as ctk
 import json
 import xml.etree.ElementTree as ET
 import struct
@@ -148,76 +149,86 @@ class CoordinateComparator:
         self.canvas_height = (grid_range_y * 2) + margin * 2
         
         # Window size (canvas + control + log) - 15% reduction
-        window_width = int((self.canvas_width + 30) * 0.85)
-        window_height = int((self.canvas_height + 250) * 0.85)  # Control + log area reduced
+        self.window_width = int((self.canvas_width + 30) * 0.85)
+        self.window_height = int((self.canvas_height + 250) * 0.85) - 50  # Control + log area reduced
         
-        self.root.geometry(f"{window_width}x{window_height}")
+        self.root.geometry(f"{self.window_width}x{self.window_height}")
         
         print(f" UV box size: {self.uv_box_width}x{self.uv_box_height}")
         print(f" Canvas size: {self.canvas_width}x{self.canvas_height}")
-        print(f" Window size: {window_width}x{window_height}")
+        print(f" Window size: {self.window_width}x{self.window_height}")
     
     def setup_ui(self):
         """Create and arrange UI elements."""
-        # Control frame (top)
-        control_frame = ttk.Frame(self.root)
-        control_frame.pack(side=tk.TOP, pady=10)
-        
-        # Character input
-        ttk.Label(control_frame, text="Characters to compare:").pack(side=tk.LEFT, padx=(10, 2))
-        self.char_entry = ttk.Entry(control_frame, width=20)
-        self.char_entry.pack(side=tk.LEFT, padx=5)
-        self.char_entry.insert(0, "c, 1, A") # Default
-        
-        ttk.Button(control_frame, text="Start Comparison", command=self.compare_coordinates).pack(side=tk.LEFT, padx=5)
-        ttk.Button(control_frame, text="Clear Canvas", command=self.clear_canvas).pack(side=tk.LEFT, padx=5)
-        ttk.Button(control_frame, text="Check File Paths", command=self.check_file_paths).pack(side=tk.LEFT, padx=5)
-        
-        # Checkbox frame (below control)
-        checkbox_frame = ttk.Frame(self.root)
-        checkbox_frame.pack(side=tk.TOP, pady=5)
-        
-        # Explicitly specify master for BooleanVar
-        self.show_original = tk.BooleanVar(master=self.root, value=True)  # Default ON
-        self.show_new = tk.BooleanVar(master=self.root, value=True)  # Default ON
-        self.show_glyph_image = tk.BooleanVar(master=self.root, value=True)  # Default ON
-        self.apply_baseline_transform = tk.BooleanVar(master=self.root, value=True)  # Baseline transform default ON
-        
-        # Use tk.Checkbutton (more stable than ttk)
-        tk.Checkbutton(checkbox_frame, text="Show Original Box (Solid)", variable=self.show_original,
-                       command=self.redraw_if_loaded).pack(side=tk.LEFT, padx=10)
-        tk.Checkbutton(checkbox_frame, text="Show New Box (Dashed)", variable=self.show_new,
-                       command=self.redraw_if_loaded).pack(side=tk.LEFT, padx=10)
-        tk.Checkbutton(checkbox_frame, text="Show Glyph Image", variable=self.show_glyph_image,
-                       command=self.redraw_if_loaded).pack(side=tk.LEFT, padx=10)
-        tk.Checkbutton(checkbox_frame, text="Transform Position Y (Baseline=0)", variable=self.apply_baseline_transform,
-                       command=self.redraw_if_loaded).pack(side=tk.LEFT, padx=10)
-        
-        # Canvas setup (center) - auto-adjust to window size
-        canvas_frame = ttk.Frame(self.root)
-        canvas_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=10, pady=10)
+        self.root.columnconfigure(0, weight=1)
+        self.root.rowconfigure(2, weight=1)  # canvas row
 
-        self.canvas = tk.Canvas(canvas_frame, bg='white')
-        self.canvas.pack(fill=tk.BOTH, expand=True)
-        
-        # Bind to window resize event
+        # ── Control frame (top) ───────────────────────────────────────
+        control_frame = ctk.CTkFrame(self.root, fg_color="transparent")
+        control_frame.grid(row=0, column=0, sticky='ew', pady=(10, 4), padx=10)
+
+        ctk.CTkLabel(control_frame, text="Characters to compare:").pack(side=tk.LEFT, padx=(0, 4))
+        self.char_entry = ctk.CTkEntry(control_frame, width=160)
+        self.char_entry.pack(side=tk.LEFT, padx=4)
+        self.char_entry.insert(0, "c, 1, A")
+
+        ctk.CTkButton(control_frame, text="Start Comparison", width=130,
+                      command=self.compare_coordinates).pack(side=tk.LEFT, padx=4)
+        ctk.CTkButton(control_frame, text="Clear Canvas", width=100,
+                      command=self.clear_canvas,
+                      fg_color=("gray70","gray30"), hover_color=("gray60","gray25"),
+                      text_color=("gray10","gray90")).pack(side=tk.LEFT, padx=4)
+        ctk.CTkButton(control_frame, text="Check File Paths", width=120,
+                      command=self.check_file_paths,
+                      fg_color=("gray70","gray30"), hover_color=("gray60","gray25"),
+                      text_color=("gray10","gray90")).pack(side=tk.LEFT, padx=4)
+
+        # ── Checkbox frame ────────────────────────────────────────────
+        checkbox_frame = ctk.CTkFrame(self.root, fg_color="transparent")
+        checkbox_frame.grid(row=1, column=0, sticky='ew', pady=(0, 4), padx=10)
+
+        self.show_original = tk.BooleanVar(master=self.root, value=True)
+        self.show_new = tk.BooleanVar(master=self.root, value=True)
+        self.show_glyph_image = tk.BooleanVar(master=self.root, value=True)
+        self.apply_baseline_transform = tk.BooleanVar(master=self.root, value=True)
+
+        for text, var in [
+            ("Show Original Box (Solid)",          self.show_original),
+            ("Show New Box (Dashed)",               self.show_new),
+            ("Show Glyph Image",                    self.show_glyph_image),
+            ("Transform Position Y (Baseline=0)",   self.apply_baseline_transform),
+        ]:
+            ctk.CTkCheckBox(checkbox_frame, text=text, variable=var,
+                            command=self.redraw_if_loaded).pack(side=tk.LEFT, padx=10)
+
+        # ── Canvas (center, expands) ──────────────────────────────────
+        canvas_frame = ctk.CTkFrame(self.root, corner_radius=0, fg_color="transparent")
+        canvas_frame.grid(row=2, column=0, sticky='nsew', padx=10, pady=4)
+        canvas_frame.columnconfigure(0, weight=1)
+        canvas_frame.rowconfigure(0, weight=1)
+        self.root.rowconfigure(2, weight=1)
+
+        self.canvas = tk.Canvas(canvas_frame, bg='#1a1a2e')
+        self.canvas.grid(row=0, column=0, sticky='nsew')
         self.canvas.bind('<Configure>', self.on_canvas_resize)
-        
-        # Info text (bottom)
-        self.info_text = tk.Text(self.root, height=10, width=120)
-        self.info_text.pack(side=tk.BOTTOM, pady=10)
 
-        # Setup insert wrapper synchronized with console
+        # ── Log textbox (bottom) ──────────────────────────────────────
+        self.info_text = ctk.CTkTextbox(
+            self.root, height=160,
+            font=ctk.CTkFont(family="Consolas", size=11))
+        self.info_text.grid(row=3, column=0, sticky='ew', padx=10, pady=(4, 10))
+
+        # insert/see 래퍼 (CTkTextbox는 내부 _textbox를 직접 쓰지 않아도 됨)
         self._info_text_insert = self.info_text.insert
         def logging_insert(index, message):
             if message:
                 print(message.rstrip("\n"))
             self._info_text_insert(index, message)
         self.info_text.insert = logging_insert
-        
+
         # Store coordinates data
         self.coordinates = {}
-        
+
         # Dictionary for storing click info
         self.item_info = {}
         self.canvas.bind("<Button-1>", self.on_canvas_click)
@@ -1251,8 +1262,8 @@ class CoordinateComparator:
         """GUI와 콘솔에 메시지 로깅"""
         if hasattr(self, "info_text"):
             text = message if message.endswith("\n") else message + "\n"
-            self.info_text.insert(tk.END, text)
-            self.info_text.see(tk.END)
+            self.info_text.insert("end", text)
+            self.info_text._textbox.see("end")
 
     def analyze_and_log_differences(self, codepoint, original_data, new_data):
         """coordinates 차이를 분석하고 로그에 기록합니다."""
@@ -1554,10 +1565,12 @@ class CoordinateComparator:
 def main():
     try:
         print(" Starting coordinates comparison tool...")
-        
-        # Tkinter 초기화
-        root = tk.Tk()
-        print(" Tkinter window created")
+
+        # CustomTkinter 초기화
+        ctk.set_appearance_mode("dark")
+        ctk.set_default_color_theme("blue")
+        root = ctk.CTk()
+        print(" CustomTkinter window created")
         
         # 창 설정은 CoordinateComparator 클래스에서 수행
         # root.title("소문자 'c' coordinates 비교 도구")
@@ -1570,13 +1583,12 @@ def main():
         # 창 닫기 프로토콜 연결
         root.protocol("WM_DELETE_WINDOW", app.on_closing)
         
-        # 창을 화면 중앙에 배치
+        # 창을 화면 중앙에 배치 (CTk는 winfo_width가 초기화 전 1을 반환할 수 있어 저장된 값 사용)
         root.update_idletasks()
-        width = root.winfo_width()
-        height = root.winfo_height()
-        x = (root.winfo_screenwidth() // 2) - (width // 2)
-        y = (root.winfo_screenheight() // 2) - (height // 2)
-        root.geometry(f'{width}x{height}+{x}+{y}')
+        w, h = app.window_width, app.window_height
+        x = (root.winfo_screenwidth()  // 2) - (w // 2)
+        y = 20
+        root.geometry(f'{w}x{h}+{x}+{y}')
         
         # 창을 강제로 앞으로 가져오기
         root.lift()

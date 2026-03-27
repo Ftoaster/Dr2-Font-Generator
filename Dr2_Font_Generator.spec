@@ -1,10 +1,11 @@
 # -*- mode: python ; coding: utf-8 -*-
 import os
+import customtkinter
 
 block_cipher = None
 
-# 아이콘 경로 설정 (SPECPATH는 spec 파일이 있는 디렉토리)
 icon_path = os.path.join(SPECPATH, 'icon.ico')
+ctk_path = os.path.dirname(customtkinter.__file__)
 
 a = Analysis(
     ['Dr2 Font Generator.py'],
@@ -19,9 +20,10 @@ a = Analysis(
         ('json_to_xml.py', '.'),
         ('l_merge_libraries.py', '.'),
         ('coordinate_comparator.py', '.'),
-        ('icon.ico', '.'),  # 창 아이콘용
+        ('icon.ico', '.'),
+        (ctk_path, 'customtkinter'),
     ],
-    hiddenimports=[],
+    hiddenimports=['customtkinter', 'darkdetect'],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
